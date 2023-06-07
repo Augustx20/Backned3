@@ -1,1 +1,1 @@
-alert("javascript funcionando");
+const socket = io()

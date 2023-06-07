@@ -75,6 +75,7 @@ routerProductos.post("/", (req, res) => {
   const productoParaCrear = req.body;
   productoParaCrear.id = (Math.random() * 1000000000).toFixed(0);
   productoParaCrear.fecha = Date.now();
+  // if(req.body.id && req.body.thumbnail)
   productos.push(productoParaCrear);
   return res.status(201).json({
     status: "success",
