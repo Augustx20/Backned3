@@ -4,13 +4,22 @@ import { routerPets } from "./routes/pets.router.js";
 import { routerProductos } from "./routes/productos.router.js";
 import { routerVistaProductos } from "./routes/productos.vistas.router.js";
 import { routerVistaChatSocket } from "./routes/chat-socket.vista.router.js";
-
-import { __dirname } from "./utils.js";
+import { __dirname, connectMongo } from "./utils.js";
 import { Server } from "socket.io"; 
+import { routerUsers } from "./routes/users.router.js";
+
+
+//mongodb+srv://augus1726:diXbIUoo4Ut9mo73@codercluster.oeptjle.mongodb.net/?retryWrites=true&w=majority
+
+
 
 const port = 8080;
 const app = express();
 
+
+connectMongo()
+
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 
@@ -23,6 +32,7 @@ app.use(express.static(__dirname + "/public"));
 //ENDPOINT TIPO API CON DATOS CRUDOS EN JSON
 app.use("/api/productos", routerProductos);
 app.use("/api/pets", routerPets);
+app.use("/api/users", routerUsers);
 
 //HTML REAL TIPO VISTA
 app.use("/vista/productos", routerVistaProductos);
@@ -55,26 +65,5 @@ socketServer.on("connection", (socket) => {
     socketServer.emit("todos_los_msgs", msgs);
   });
 
-  //BACK EMITE "msg_server_to_front"
-  /* socket.emit("msg_server_to_front", {
-    author: "server",
-    msg: "bienvenido !!!",
-  }); */
-  //BACK ATAJA "msg_front_to_back"
-  /* socket.on("msg_front_to_back", (msg) => {
-    console.log(msg);
-  });
- */
-  //BACK ATAJA "data_dispositivo"
-  /* socket.on("data_dispositivo", (obj) => {
-    console.log(obj);
-  }); */
-  //BACK ATAJA "msg_random"
-  /* socket.on("msg_random", (msg) => {
-    console.log(msg);
-  }); */
-  /* socketServer.emit("msg_a_todos", {
-    author: "server",
-    msg: "para todos mis usuarios sockets concetados!!!!",
-  }); */
 });
+
