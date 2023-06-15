@@ -1,7 +1,7 @@
 //@ts-check
 import express from "express";
 import handlebars from "express-handlebars";
-//import { routerPets } from "./routes/pets.router.js";
+import { routerPets } from "./routes/pets.router.js";
 //import { routerProductos } from "./routes/productos.router.js";
 // { routerVistaProductos } from "./routes/productos.vistas.router.js";
 import { routerVistaChatSocket } from "./routes/chat-socket.vista.router.js";
@@ -33,7 +33,7 @@ app.set("view engine", "handlebars");
 app.use(express.static(__dirname + "/public"));
 //ENDPOINT TIPO API CON DATOS CRUDOS EN JSON
 //app.use("/api/productos", routerProductos);
-//app.use("/api/pets", routerPets);
+app.use("/api/pets", routerPets);
 app.use("/api/users", routerUsers );
 
 //HTML REAL TIPO VISTA

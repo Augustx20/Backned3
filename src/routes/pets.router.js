@@ -1,42 +1,49 @@
-// import express from "express";
-// import { uploader } from "../utils/multer.js";
-// export const routerPets = express.Router();
 
-// routerPets.get("/", (req, res) => {
-//   const edad = req.query.edad;
-//   if (req.query && edad) {
-//     const petsFiltradosPorEdad = pets.filter((p) => p.edad == edad);
-//     return res.status(200).json({
-//       status: "success",
-//       msg: "te paso todos los pets cuyo edad = " + edad,
-//       data: petsFiltradosPorEdad,
-//     });
-//   } else {
-//     return res.status(200).json({
-//       status: "success",
-//       msg: "te paso todos los pets",
-//       data: pets,
-//     });
-//   }
-// });
+import express from "express";
+import { petsService } from "../services/pets.service.js";
+export const routerPets = express.Router();
 
-// routerPets.get("/:id", (req, res) => {
-//   const id = req.params.id;
-//   const pet = pets.find((p) => p.id == id);
-//   if (pet) {
-//     return res.status(200).json({
-//       status: "success",
-//       msg: "pet encontrado con exito",
-//       data: pet,
-//     });
-//   } else {
-//     return res.status(400).json({
-//       status: "error",
-//       msg: "no se encontro el pet",
-//       data: {},
-//     });
-//   }
-// });
+
+routerPets.get("/", async (req, res) => {
+  try {
+    const pets = await petsService.getAllPets()
+    return res.status(200).json({
+        status: "success",
+        msg: "listado de perros",
+        data: pets,
+
+    })
+ } catch (e) {
+    console.log(e);
+    return res.status(500).json({
+        status: "error",
+        msg: "somenthin went wrong :{",
+        data: {},
+    })
+ }
+});
+routerPets.post("/", async (req, res) => {
+    try {
+        const {firstName, edad, raza} = req.body;
+        const petsCreated = await petsService.createPets( firstName , edad, raza);
+
+        //responde al usuario con exito
+        return res.status(201).json({
+            status: "success",
+            msg: "pets created ",
+            data: petsCreated,
+        });
+        
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json({
+            status: "error",
+            msg: "something went wrong :(",
+            data: {},
+        })
+        
+    }
+  });
 
 // routerPets.delete("/:id", (req, res) => {
 //   const id = req.params.id;
@@ -69,23 +76,4 @@
 //   }
 // });
 
-// routerPets.post("/", uploader.single("file"), (req, res) => {
-//   if (!req.file) {
-//     res.status(400).send({
-//       status: "error",
-//       msg: "error no enviaste una foto o no se puedo subir la misma",
-//       data: {},
-//     });
-//   }
 
-//   const petParaCrear = req.body;
-//   petParaCrear.id = (Math.random() * 1000000000).toFixed(0);
-//   petParaCrear.fecha = Date.now();
-//   petParaCrear.file = "http://localhost:8080/" + req.file.filename;
-//   pets.push(petParaCrear);
-//   return res.status(201).json({
-//     status: "success",
-//     msg: "creamos el pet que pediste",
-//     data: petParaCrear,
-//   });
-// });
