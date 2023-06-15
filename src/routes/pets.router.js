@@ -30,7 +30,7 @@ routerPets.post("/", async (req, res) => {
         //responde al usuario con exito
         return res.status(201).json({
             status: "success",
-            msg: "pets created ",
+            msg: "pets created, awesome ",
             data: petsCreated,
         });
         
@@ -45,35 +45,56 @@ routerPets.post("/", async (req, res) => {
     }
   });
 
-// routerPets.delete("/:id", (req, res) => {
-//   const id = req.params.id;
-//   pets = pets.filter((p) => p.id != id);
+routerPets.put("/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const {firstName, edad, raza} = req.body
+        const petsUpdated = await petsService.UpadatePets(id,firstName,edad,raza)
+            //responde al usuario con exito
+            return res.status(201).json({
+                status: "success",
+                msg: "pets updated, awesome",
+                data: petsUpdated,
+            })
+            
+        } catch (e) {
+            //Logger
+            console.log(e);
+            //responde al usuario con error
+            return res.status(500).json({
+                status: "error",
+                msg: "something went wrong :(",
+                data: {},
+            })
+            
+        }
+});
 
-//   return res.status(200).json({
-//     status: "success",
-//     msg: "filtramos los pets cuyo id es " + id,
-//     data: {},
-//   });
-// });
 
-// routerPets.put("/:id", (req, res) => {
-//   const id = req.params.id;
-//   const datosNuevos = req.body;
-//   const indice = pets.findIndex((p) => p.id == id);
-//   if (indice == -1) {
-//     return res.status(404).json({
-//       status: "error",
-//       msg: "error ya que este pet no existe",
-//       data: {},
-//     });
-//   } else {
-//     pets[indice] = { ...datosNuevos, id: pets[indice].id };
-//     return res.status(201).json({
-//       status: "success",
-//       msg: "pet modificado ok",
-//       data: pets[indice],
-//     });
-//   }
-// });
+routerPets.delete("/:id", async (req, res) => {
+    try {
+        const {id} = req.params;
+        const deleted = await petsService.deletePets(id)
+
+        //responde al usuario con exito
+        return res.status(200).json({
+            status: "success",
+            msg: "user deleted",
+            data: deleted,
+        })
+    } catch (e) {
+        //Logger
+        console.log(e);
+        //responde al usuario con error
+        return res.status(500).json({
+            status: "error",
+            msg: "something went wrong :(",
+            data: {},
+        })
+        
+    }
+});
+
+
 
 
