@@ -1,12 +1,14 @@
+//@ts-check
 import express from "express";
 import handlebars from "express-handlebars";
-import { routerPets } from "./routes/pets.router.js";
-import { routerProductos } from "./routes/productos.router.js";
-import { routerVistaProductos } from "./routes/productos.vistas.router.js";
+//import { routerPets } from "./routes/pets.router.js";
+//import { routerProductos } from "./routes/productos.router.js";
+// { routerVistaProductos } from "./routes/productos.vistas.router.js";
 import { routerVistaChatSocket } from "./routes/chat-socket.vista.router.js";
-import { __dirname, connectMongo } from "./utils.js";
+import { __dirname } from "./path.js";
 import { Server } from "socket.io"; 
 import { routerUsers } from "./routes/users.router.js";
+import { connectMongo } from "./utils/connections.js";
 
 
 //mongodb+srv://augus1726:diXbIUoo4Ut9mo73@codercluster.oeptjle.mongodb.net/?retryWrites=true&w=majority
@@ -30,12 +32,12 @@ app.set("view engine", "handlebars");
 //archivos publicos
 app.use(express.static(__dirname + "/public"));
 //ENDPOINT TIPO API CON DATOS CRUDOS EN JSON
-app.use("/api/productos", routerProductos);
-app.use("/api/pets", routerPets);
-app.use("/api/users", routerUsers);
+//app.use("/api/productos", routerProductos);
+//app.use("/api/pets", routerPets);
+app.use("/api/users", routerUsers );
 
 //HTML REAL TIPO VISTA
-app.use("/vista/productos", routerVistaProductos);
+//pp.use("/vista/productos", routerVistaProductos);
 
 app.use("/vista/chat-socket", routerVistaChatSocket);
 

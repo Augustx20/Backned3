@@ -1,16 +1,16 @@
 //@ts-check
-
 import express from "express";
-import { UserModel } from "../models/users.model.js";
+import { userService } from "../services/users.service.js";
 export const routerUsers = express.Router();
+
 
 routerUsers.get("/", async (req, res) => {
  try {
-    const Users = await UserModel.find({});
+    const users = await userService.getAllUsers()
     return res.status(200).json({
         status: "success",
         msg: "listado de usuarios",
-        data: Users,
+        data: users,
 
     })
  } catch (e) {
@@ -24,22 +24,9 @@ routerUsers.get("/", async (req, res) => {
 });
 
 routerUsers.post('/', async (req,res)=>{
-    const {firstName, lastName, email} = req.body;
     try {
-        if (!firstName || !lastName || !email) {
-            console.log(
-                "validation error: plase complete firstname, lastname and email POST"
-            );
-
-            //retorna si es error
-            return res.status(400).json({
-                status: "error",
-                msg: "please complete firstname, lastname and email",
-                data: {},
-            });
-        }
-        //crea los usuarios y espera a que lo hagan
-        const userCreated = await UserModel.create({ firstName , lastName, email});
+        const {firstName, lastName, email} = req.body;
+        const userCreated = await userService.createUser( firstName , lastName, email);
 
         //responde al usuario con exito
         return res.status(201).json({
@@ -61,28 +48,10 @@ routerUsers.post('/', async (req,res)=>{
 
 //ACTUALIZACION Y VALIDACION DE DATOS
 routerUsers.put("/:id", async (req,res)=>{
-    const {id} = req.params;
-    const {firstName, lastName, email} = req.body
     try {
-        // VALIDACIONES
-        if (!firstName || !lastName || !email || !id) {
-            console.log(
-                "validation error: plase complete firstname, lastname and email"
-            );
-
-            //retorna si es error
-            return res.status(400).json({
-                status: "error",
-                msg: "please complete firstname, lastname and email",
-                data: {},
-            });
-        }
-        //crea los usuarios y espera a que lo hagan
-        const userUpdated = await UserModel.updateOne(
-            { _id: id},
-            { firstName, lastName, email}
-        )
-
+    const { id } = req.params;
+    const {firstName, lastName, email} = req.body
+    const userUpdated = await userService.UpadateUser(id,firstName,lastName,email)
         //responde al usuario con exito
         return res.status(201).json({
             status: "success",
@@ -108,7 +77,8 @@ routerUsers.delete("/:id", async (req,res)=>{
     
     try {
         const {id} = req.params;
-        const deleted = await UserModel.deleteOne({ _id: id});
+        const deleted = await userService.deleteUser(id)
+
         //responde al usuario con exito
         return res.status(200).json({
             status: "success",
