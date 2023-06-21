@@ -13,10 +13,7 @@ export async function connectMongo(){
     console.log("plug to mongo!");
 
 
-      let res = await UserModel.paginate({}, {limit: 10, page: 1})
-      console.log(res)
 
-    // let student = await StudentsModel.find()
     // console.log(JSON.stringify(student, null, 2))
 
 

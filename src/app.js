@@ -9,6 +9,7 @@ import { __dirname } from "./path.js";
 import { Server } from "socket.io"; 
 import { routerUsers } from "./routes/users.router.js";
 import { connectMongo } from "./utils/connections.js";
+import { usersHtmlRouter } from "./routes/users.html.router.js";
 
 
 //mongodb+srv://augus1726:diXbIUoo4Ut9mo73@codercluster.oeptjle.mongodb.net/?retryWrites=true&w=majority
@@ -35,7 +36,7 @@ app.use(express.static(__dirname + "/public"));
 //app.use("/api/productos", routerProductos);
 app.use("/api/pets", routerPets);
 app.use("/api/users", routerUsers );
-
+app.use('/users', usersHtmlRouter)
 //HTML REAL TIPO VISTA
 //pp.use("/vista/productos", routerVistaProductos);
 
