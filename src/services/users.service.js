@@ -1,5 +1,5 @@
 
-import { UserModel } from "../DAO/models/users.model.js";
+import { UserModel } from "../DAO/models/users.model.js"
 
 class UserService{
 validateUserPostUsers(firstName,lastName,email){
