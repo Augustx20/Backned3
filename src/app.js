@@ -1,72 +1,81 @@
-//@ts-check
-import express from "express";
-import handlebars from "express-handlebars";
-import { routerPets } from "./routes/pets.router.js";
-//import { routerProductos } from "./routes/productos.router.js";
-// { routerVistaProductos } from "./routes/productos.vistas.router.js";
-import { routerVistaChatSocket } from "./routes/chat-socket.vista.router.js";
-import { __dirname } from "./path.js";
-import { Server } from "socket.io"; 
-import { routerUsers } from "./routes/users.router.js";
-import { connectMongo } from "./utils/connections.js";
-import { usersHtmlRouter } from "./routes/users.html.router.js";
+import express from 'express';
+import handlebars from 'express-handlebars';
+import { Server } from 'socket.io';
+import { __dirname } from './utils/connections.js';
+import { routerProducts } from './routes/products.routes.js';
+import { productManager } from './controllers/ProductManager.js';
+import { viewRoutes } from './routes/views.routes.js';
+import { routerCarts } from './routes/carts.routes.js';
+import { connectMongo } from './utils/connections.js';
+import { chatService } from './services/chat.service.js';
 
-
-//mongodb+srv://augus1726:diXbIUoo4Ut9mo73@codercluster.oeptjle.mongodb.net/?retryWrites=true&w=majority
-
-
-
-const port = 3010;
 const app = express();
-
-
-connectMongo()
+const port = 8080;
+connectMongo();
+const httpServer = app.listen(port, () => console.log(`Listening on port ${port}`));
+const socketServer = new Server(httpServer);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// HANDLEBARS ENGINE SETTINGS
+app.engine('handlebars', handlebars.engine());
+app.set('views', __dirname + '/views');
+app.set('view engine', 'handlebars');
+app.use(express.static(__dirname + '/public'));
 
-//CONFIGURACION DEL MOTOR DE HANDLEBARS
-app.engine("handlebars", handlebars.engine());
-app.set("views", __dirname + "/views");
-app.set("view engine", "handlebars");
-//archivos publicos
-app.use(express.static(__dirname + "/public"));
-//ENDPOINT TIPO API CON DATOS CRUDOS EN JSON
-//app.use("/api/productos", routerProductos);
-app.use("/api/pets", routerPets);
-app.use("/api/users", routerUsers );
-app.use('/users', usersHtmlRouter)
-//HTML REAL TIPO VISTA
-//pp.use("/vista/productos", routerVistaProductos);
+socketServer.on('connection', (socket) => {
+  console.log(`New connection: ID ${socket.id}`);
 
-app.use("/vista/chat-socket", routerVistaChatSocket);
+  // new product reciever
+  socket.on('addProduct', async (newProduct) => {
+    const { title, description, category, price, thumbnail, code, stock, status } = newProduct;
+    const adddedProduct = await productManager.addProducts(title, description, category, price, thumbnail, code, stock, status);
 
-app.get("*", (req, res) => {
-  return res.status(404).json({
-    status: "error",
-    msg: "error esa ruta no existe",
-    data: {},
-  });
-})
-
-const httpServer = app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
-const socketServer = new Server(httpServer)
-
-socketServer.on('connection',socket=>{
-  console.log("nuevo cliente conectado")
-})
-
-
-let msgs = [];
-socketServer.on("connection", (socket) => {
-  socket.on("msg_front_to_back", (msg) => {
-    msgs.push(msg);
-    console.log(msgs);
-    socketServer.emit("todos_los_msgs", msgs);
+    socket.emit('productAdded', adddedProduct);
   });
 
+  // Delete product reciever
+  socket.on('deleteProduct', async (productId) => {
+    const deletedProduct = await productManager.deleteProduct(productId);
+    socket.emit('productDeleted', deletedProduct.title);
+  });
+
+  // Chat
+  socket.on('user_name_input', (msg) => {
+    console.log(msg);
+  });
+  socket.on('sendMessage', async (msg) => {
+    const newMsgRecived = await chatService.newMessagge(msg.sender, msg.msg);
+    const chatLog = await chatService.getChat();
+    socketServer.emit('chat_update', {
+      log: chatLog,
+    });
+    return newMsgRecived;
+  });
+
+  // Show handshake finalization
+  socket.on('disconnect', () => {
+    console.log(`Connection finished: ID ${socket.id}`);
+  });
 });
 
+// index endpoint
+app.get('/', (req, res) => {
+  let option = {
+    welcome: 'Greetings internet surfer, here are some options for you',
+    option1: '/view/products/(insert a id nomber here or not)',
+    style: 'main.css',
+  };
+  res.render('index', option);
+});
+// products endpoint
+app.use('/api/products', routerProducts);
+// cart endpoint
+app.use('/api/carts', routerCarts);
+// View endpoint
+app.use('/', viewRoutes);
+
+app.get('*', (req, res) => {
+  res.status(404).send("ERROR 404 : The website you were trying to reach couldn't be found on the server.");
+});
